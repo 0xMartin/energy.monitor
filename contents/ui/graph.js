@@ -17,10 +17,10 @@
  */
 
 //<-------config-------------------------------------------------------------------------------->
-const grid_color = "#666666";
-const txt_color = "#cccccc";
-const graph_consumption_color = "#fd4848";
-const graph_voltage_color = "#ff6800";
+var grid_color = "#666666";
+var txt_color = "#cccccc";
+var graph_consumption_color = "#fd4848";
+var graph_voltage_color = "#ff6800";
 var minutes_range = 60;
 var samples_per_minute = 2;
 //<--------------------------------------------------------------------------------------------->
@@ -39,11 +39,13 @@ function setConsumption(data) {
 }
 
 function pushCapacity(value) {
+    if (Number.isNaN(value) || value < 0.0) value = capacity_levels[0];
     capacity_levels.unshift(parseFloat(value));
     while (capacity_levels.length - 1 > 10 * 60 * samples_per_minute) capacity_levels.pop();
 }
 
 function pushConsumption(value) {
+    if (Number.isNaN(value) || value < 0.0) value = consumption_levels[0];
     consumption_levels.unshift(parseFloat(value));
     while (consumption_levels.length - 1 > 10 * 60 * samples_per_minute) consumption_levels.pop();
 }
@@ -87,7 +89,7 @@ function paintGraph(ctx, width, height) {
         ctx.closePath();
 
         var grd = ctx.createLinearGradient(0, 0, 0, height * 0.9);
-        grd.addColorStop(0, "red");
+        grd.addColorStop(0, graph_consumption_color);
         grd.addColorStop(1, "transparent");
         ctx.fillStyle = grd;
         ctx.fill();

@@ -53,10 +53,10 @@ Item {
     //<---------------------------------------------------------------------------------------------------->
 
 
-    //power settConsumption
+    //power consumption
     //<---------------------------------------------------------------------------------------------------->
-    property string batPath: Power.getBatPath()
-    property double power: Power.getPower(batPath)
+    property string batteryPath: Power.getBatteryPath()
+    property double power: Power.getPower(batteryPath)
     //<---------------------------------------------------------------------------------------------------->
 
     //app 
@@ -69,9 +69,10 @@ Item {
         Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
 
         property bool isOnBattery: pmSource.data[acAdapterKey][acPluggedKey] == false
+        property bool isOnBatteryLast: true
         property int batteryPercent: pmSource.data[batteryKey][batteryPercentKey]
 
-        property double power_avg: Power.getPower(main.batPath) * 10
+        property double power_avg: Power.getPower(main.batteryPath) * 10
         property double capacity_avg: batteryPercent * 10
 
         property alias canvas: graphCanvas
@@ -119,6 +120,24 @@ Item {
             }
         }
 
+        Timer {
+            interval: 1000
+            repeat: true
+            running: true
+            triggeredOnStart: true
+            onTriggered: {
+                if(energyMonitor.isOnBatteryLast != energyMonitor.isOnBattery) {
+                    if(energyMonitor.isOnBattery) {
+                        Graph.graph_consumption_color = "#fd4848";        
+                    } else {
+                        Graph.graph_consumption_color = "#509500";
+                    }
+                    energyMonitor.isOnBatteryLast = energyMonitor.isOnBattery;
+                    energyMonitor.canvas.requestPaint();
+                }
+            }
+        }
+
         //main timer
         Timer {
             id: mainTimer
@@ -127,7 +146,7 @@ Item {
             running: true
             triggeredOnStart: true
             onTriggered: {
-                main.power = Power.getPower(main.batPath);
+                main.power = Power.getPower(main.batteryPath);
 
                 if(Number.isInteger(main.power)) {
                     graphCanvas.infoTxt = main.power + ".0 W " + batteryPercent + " %"; 
