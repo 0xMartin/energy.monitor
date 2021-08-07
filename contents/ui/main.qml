@@ -120,6 +120,7 @@ Item {
             }
         }
 
+        //time for color of consumption graph (green = chargeding, red = discharging)
         Timer {
             interval: 1000
             repeat: true
