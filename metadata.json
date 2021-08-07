@@ -20,7 +20,7 @@
             "Plasma/Applet"
         ],
         "Version": "3.0",
-        "Website": ""
+        "Website": "https://github.com/0xMartin/energy.monitor"
     },
     "X-Plasma-API": "declarativeappletscript",
     "X-Plasma-MainScript": "ui/main.qml",
