@@ -1,0 +1,30 @@
+{
+    "KPlugin": {
+        "Authors": [{
+            "Email": "martin.krcma1@gmail.com",
+            "Name": "Martin Krcma"
+        }],
+        "Category": "System Information",
+        "Description": "Energy consumption monitor",
+        "EnabledByDefault": true,
+        "FormFactors": [
+            "tablet",
+            "handset",
+            "desktop"
+        ],
+        "Icon": "battery-full",
+        "Id": "energy.monitor",
+        "License": "GPL-2.0+",
+        "Name": "Energy monitor",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "3.0",
+        "Website": ""
+    },
+    "X-Plasma-API": "declarativeappletscript",
+    "X-Plasma-MainScript": "ui/main.qml",
+    "X-Plasma-NotificationArea": "true",
+    "X-Plasma-NotificationAreaCategory": "Hardware",
+    "X-Plasma-StandAloneApp": true
+}
