@@ -23,6 +23,8 @@ import QtQuick.Layouts 1.1
 Item {
     property alias cfg_timeRange: timeRange.value
     property alias cfg_samplesPerMinute: samplesPerMinute.value
+    property alias cfg_clear: chcekClear.checked
+
 
     ColumnLayout {
         RowLayout {
@@ -41,13 +43,24 @@ Item {
         RowLayout {
             Label {
                 id: samplesPerMinuteLabel
-                text: i18n("Samples per second:")
+                text: i18n("Samples per minute:")
             }
             SpinBox {
                 id: samplesPerMinute
                 stepSize: 1
                 minimumValue: 1
-                maximumValue: 4
+                maximumValue: 60
+                suffix: i18nc("Samples", "x")
+            }
+        }
+        RowLayout {
+            Label {
+                id: chcekClearLabel
+                text: i18n("Clear data:")
+            }
+            CheckBox {
+                id: chcekClear
+                checked: false
             }
         }
     }

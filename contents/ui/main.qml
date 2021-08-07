@@ -19,6 +19,7 @@
 import QtQuick 2.0
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
+import QtQuick.Layouts 1.1
 
 import "graph.js" as Graph
 import "power.js" as Power
@@ -40,23 +41,7 @@ Item {
         engine: "powermanagement"
         connectedSources: [batteryKey, acAdapterKey]
         interval: 1000
-
-        onSourceAdded: {
-            disconnectSource(source)
-            connectSource(source)
-        }
-
-        onSourceRemoved: {
-            disconnectSource(source)
-        }
     }
-    //<---------------------------------------------------------------------------------------------------->
-
-
-    //power consumption
-    //<---------------------------------------------------------------------------------------------------->
-    property string batteryPath: Power.getBatteryPath()
-    property double power: Power.getPower(batteryPath)
     //<---------------------------------------------------------------------------------------------------->
 
     //app 
@@ -64,25 +49,25 @@ Item {
     Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.fullRepresentation: Item {
         id: energyMonitor
-        width: units.gridUnit * 20
-        height: units.gridUnit * 10
+        Layout.minimumWidth: units.gridUnit * 25
+        Layout.minimumHeight: units.gridUnit * 13
         Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
 
+
         property bool isOnBattery: pmSource.data[acAdapterKey][acPluggedKey] == false
-        property bool isOnBatteryLast: true
         property int batteryPercent: pmSource.data[batteryKey][batteryPercentKey]
 
-        property double power_avg: Power.getPower(main.batteryPath) * 10
-        property double capacity_avg: batteryPercent * 10
 
-        property alias canvas: graphCanvas
+        property double power_avg: Power.getPower(Power.getBatteryPath())
+        property double capacity_avg: batteryPercent
+        property int samples: 1
+
 
         //main canvas
+        property alias canvas: graphCanvas
         Canvas {
             id: graphCanvas
             anchors.fill: parent
-
-            property alias timer: cTimer
 
             onPaint: {
                 var ctx = getContext("2d");
@@ -94,83 +79,85 @@ Item {
                 id: info
                 x: 50 
                 y: 10
-
                 text: "0 V"
                 font.family: "Helvetica"
                 font.pointSize: 12
                 color: Qt.rgba(1,1,1,0.5)
             }
-
-            //refresh graph data
-            Timer {
-                id: cTimer
-                interval: 60000 / plasmoid.configuration.samplesPerMinute
-                repeat: true
-                running: true
-                triggeredOnStart: true
-                onTriggered: {
-                    //Graph.pushCapacity(Math.random() * 100);
-                    //Graph.pushConsumption(10);
-                    Graph.pushCapacity(capacity_avg/10);
-                    Graph.pushConsumption(power_avg/10);
-                    energyMonitor.power_avg = 0.0;
-                    energyMonitor.capacity_avg = 0.0;
-                    graphCanvas.requestPaint();
-                }
-            }
         }
 
-        //time for color of consumption graph (green = chargeding, red = discharging)
+        //color of consumption graph (green = chargeding, red = discharging) + config apply
+        property bool isOnBatteryLast: true
         Timer {
             interval: 1000
             repeat: true
             running: true
             triggeredOnStart: true
             onTriggered: {
+                //config apply
+                if(Graph.refreshConfig()) {
+                    energyMonitor.mainTimer.interval = 60000 / Graph.samples_per_minute / 10;
+                }
+
+                energyMonitor.canvas.requestPaint();
+
+                //color
                 if(energyMonitor.isOnBatteryLast != energyMonitor.isOnBattery) {
                     if(energyMonitor.isOnBattery) {
-                        Graph.graph_consumption_color = "#fd4848";        
+                        Graph.graph_consumption_color = "#fd3838";        
                     } else {
                         Graph.graph_consumption_color = "#509500";
                     }
                     energyMonitor.isOnBatteryLast = energyMonitor.isOnBattery;
-                    energyMonitor.canvas.requestPaint();
                 }
             }
         }
 
-        //main timer
+        //timer for sampling and graph repainting
+        property alias mainTimer: t1
         Timer {
-            id: mainTimer
-            interval: 60000 / plasmoid.configuration.samplesPerMinute / 10
+            id: t1
+            interval: 60000 / Graph.samples_per_minute / 10
             repeat: true
             running: true
             triggeredOnStart: true
             onTriggered: {
-                main.power = Power.getPower(main.batteryPath);
+                //current power
+                var power = Power.getPower(Power.getBatteryPath());
 
-                if(Number.isInteger(main.power)) {
-                    graphCanvas.infoTxt = main.power + ".0 W " + batteryPercent + " %"; 
-                } else {
-                    graphCanvas.infoTxt = main.power + " W " + batteryPercent + " %"; 
-                }
-
-                energyMonitor.power_avg += main.power;
+                //avg
+                energyMonitor.power_avg += power;
                 energyMonitor.capacity_avg += energyMonitor.batteryPercent;
+                energyMonitor.samples++;
 
-                //apply config 
-                if(Graph.minutes_range != plasmoid.configuration.timeRange) {
-                    Graph.minutes_range = plasmoid.configuration.timeRange;
-                    energyMonitor.canvas.requestPaint();
+                //display current values
+                if(Number.isInteger(power)) {
+                    graphCanvas.infoTxt = power + ".0 W " + batteryPercent + " %"; 
+                } else {
+                    graphCanvas.infoTxt = power + " W " + batteryPercent + " %"; 
                 }
-                if(Graph.samples_per_minute != plasmoid.configuration.samplesPerMinute) {
-                    Graph.samples_per_minute = plasmoid.configuration.samplesPerMinute;
-                    mainTimer.interval = 60000 / plasmoid.configuration.samplesPerMinute / 10;
-                    energyMonitor.graphCanvas.timer.interval = 60000 / plasmoid.configuration.samplesPerMinute;
+
+                //after 10 micro samples push avg data
+                if(energyMonitor.samples >= 10) {
+                    //push data
+                    Graph.pushCapacity(capacity_avg/samples);
+                    Graph.pushConsumption(power_avg/samples);
+
+                    //reset avg values
+                    energyMonitor.power_avg = 0.0;
+                    energyMonitor.capacity_avg = 0.0;
+                    energyMonitor.samples = 0;
+
+                    //paint graph
+                    energyMonitor.canvas.requestPaint();
                 }
             }
         }
-    }
-    //<---------------------------------------------------------------------------------------------------->
 
+        function buttonClicked(buttonId){
+            console.debug(buttonId);
+            Graph.clear();
+        }
+        
+    }   
 }

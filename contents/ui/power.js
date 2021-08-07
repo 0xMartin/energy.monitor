@@ -16,7 +16,6 @@
  * 
  */
 
-
 function getBatteryPath() {
     for (var i = 0; i < 4; i++) {
         var req = new XMLHttpRequest();
@@ -38,7 +37,7 @@ function getPower(fileUrl) {
     voltReq.send(null);
 
     var power = (parseInt(curReq.responseText) * parseInt(voltReq.responseText)) / 1000000000000;
-    if (Number.isNaN(power)) return 0.0
+    if (Number.isNaN(power)) return 0.0;
     return Math.round(power * 10) / 10;
 
 }

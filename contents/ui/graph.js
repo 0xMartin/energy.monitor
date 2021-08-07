@@ -17,25 +17,22 @@
  */
 
 //<-------config-------------------------------------------------------------------------------->
+var samples_per_minute = 2;
+
+
 var grid_color = "#666666";
 var txt_color = "#cccccc";
-var graph_consumption_color = "#fd4848";
-var graph_voltage_color = "#ff6800";
+var graph_consumption_color = "#fd3838";
+var graph_voltage_color = "#ff7400";
 var minutes_range = 60;
-var samples_per_minute = 2;
 //<--------------------------------------------------------------------------------------------->
 
 var capacity_levels = [];
 var consumption_levels = [];
 
-
-
-function setCapacity(data) {
-    capacity_levels = data;
-}
-
-function setConsumption(data) {
-    consumption_levels = data;
+function clear() {
+    capacity_levels = [];
+    consumption_levels = [];
 }
 
 function pushCapacity(value) {
@@ -48,6 +45,53 @@ function pushConsumption(value) {
     if (Number.isNaN(value) || value < 0.0) value = consumption_levels[0];
     consumption_levels.unshift(parseFloat(value));
     while (consumption_levels.length - 1 > 10 * 60 * samples_per_minute) consumption_levels.pop();
+}
+
+function refreshConfig() {
+    var status = minutes_range != plasmoid.configuration.timeRange;
+    minutes_range = plasmoid.configuration.timeRange;
+
+    var samples = plasmoid.configuration.samplesPerMinute;
+    if (samples != samples_per_minute) {
+        capacity_levels = resample(capacity_levels, capacity_levels.length * samples / samples_per_minute);
+        consumption_levels = resample(consumption_levels, consumption_levels.length * samples / samples_per_minute);
+        samples_per_minute = samples;
+        status = true;
+    }
+
+    if (plasmoid.configuration.clear) {
+        plasmoid.configuration.clear = false;
+        clear();
+        status = true;
+    }
+
+    return status;
+}
+
+function resample(array, newLength) {
+    if (newLength >= array.length) {
+        var arr = [];
+        var factor = array.length / (newLength - array.length);
+        for (var i = 0; i < array.length && arr.length < newLength; ++i) {
+            arr.push(array[i]);
+            if (i + 1 < array.length) {
+                if (factor < 1.0) {
+                    //linear interpolation
+                    var d = (array[i + 1] - array[i]) / (1.0 / factor);
+                    for (var j = 0; j < 1.0 / factor; ++j) {
+                        arr.push(array[i] + j * d);
+                    }
+                } else if (Math.floor(i % factor) == 0) {
+                    //avg
+                    arr.push((array[i] + array[i + 1]) / 2);
+                }
+            }
+        }
+        return arr;
+    } else {
+        var factor = array.length / (array.length - newLength)
+        return array.filter((e, i) => Math.floor(i % factor));
+    }
 }
 
 function paintGraph(ctx, width, height) {
@@ -80,6 +124,7 @@ function paintGraph(ctx, width, height) {
         }
 
         ctx.strokeStyle = graph_consumption_color;
+        ctx.lineWidth = 1.0;
         bzCurve(ctx, buffer, 0.3, 1);
 
 
@@ -97,21 +142,23 @@ function paintGraph(ctx, width, height) {
 
     //capacity level
     if (capacity_levels.length != 0) {
-        buffer = [];
         i = 0;
 
+        ctx.beginPath();
         for (const capacity of capacity_levels) {
-            buffer.push({
-                x: offset_x + (1.0 - i / (minutes_range * samples_per_minute)) * 8 * dW,
-                y: (10 - capacity / 10) * dH + height * 0.1
-            });
+            if (i == 0) {
+                ctx.moveTo(offset_x + (1.0 - i / (minutes_range * samples_per_minute)) * 8 * dW,
+                    (10 - capacity / 10) * dH + height * 0.1);
+            } else {
+                ctx.lineTo(offset_x + (1.0 - i / (minutes_range * samples_per_minute)) * 8 * dW,
+                    (10 - capacity / 10) * dH + height * 0.1);
+            }
             ++i;
             if (i > minutes_range * samples_per_minute) break;
         }
 
         ctx.strokeStyle = graph_voltage_color;
-        ctx.lineWidth = 1.0;
-        bzCurve(ctx, buffer, 0.3, 1);
+        ctx.lineWidth = 1.3;
         ctx.stroke();
     }
 
@@ -152,9 +199,14 @@ function paintGraph(ctx, width, height) {
 
 function arrayMax(arr) {
     if (arr.length == 0) return 0;
-    return arr.reduce(function(p, v) {
-        return (p > v ? p : v);
-    });
+    var i = 0;
+    var max = 0.0;
+    for (const val of arr) {
+        max = Math.max(max, val);
+        i++;
+        if (i > minutes_range * samples_per_minute) break;
+    }
+    return max;
 }
 
 function paddy(num, padlen, padchar) {
