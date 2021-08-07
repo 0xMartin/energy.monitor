@@ -19,13 +19,10 @@
 
 function getBatteryPath() {
     for (var i = 0; i < 4; i++) {
-        var path = "/sys/class/power_supply/BAT" + i + "/voltage_now";
         var req = new XMLHttpRequest();
-        req.open("GET", path, false);
+        req.open("GET", "/sys/class/power_supply/BAT" + i + "/voltage_now", false);
         req.send(null);
-        if (req.responseText != "") {
-            return "/sys/class/power_supply/BAT" + i;
-        }
+        if (req.responseText != "") return "/sys/class/power_supply/BAT" + i;
     }
     return "";
 }
@@ -35,17 +32,13 @@ function getPower(fileUrl) {
 
     var curReq = new XMLHttpRequest();
     var voltReq = new XMLHttpRequest();
-
     curReq.open("GET", fileUrl + "/current_now", false);
     voltReq.open("GET", fileUrl + "/voltage_now", false);
-
     curReq.send(null);
     voltReq.send(null);
 
     var power = (parseInt(curReq.responseText) * parseInt(voltReq.responseText)) / 1000000000000;
-
     if (Number.isNaN(power)) return 0.0
-
     return Math.round(power * 10) / 10;
 
 }
