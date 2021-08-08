@@ -5,6 +5,7 @@ Available on KDE store: https://store.kde.org/p/1570454/
 
 ## Discharging
 <img src="./img/img2.png">
+<img src="./img/img4.png">
 
 ## Charging
 <img src="./img/img1.png">
