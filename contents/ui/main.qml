@@ -153,11 +153,6 @@ Item {
                 }
             }
         }
-
-        function buttonClicked(buttonId){
-            console.debug(buttonId);
-            Graph.clear();
-        }
         
     }   
 }

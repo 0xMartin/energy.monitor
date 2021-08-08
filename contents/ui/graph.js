@@ -69,6 +69,8 @@ function refreshConfig() {
 }
 
 function resample(array, newLength) {
+    if (newLength <= 0) return;
+    if (array.length == 0) return;
     if (newLength >= array.length) {
         var arr = [];
         var factor = array.length / (newLength - array.length);
