@@ -8,6 +8,7 @@ Available on KDE store: https://store.kde.org/p/1570454/
 
 ## Charging
 <img src="./img/img1.png">
+<img src="./img/img3.png">
 
 ## Author
 * Martin Krčma
