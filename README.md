@@ -13,6 +13,3 @@ Available on KDE store: https://store.kde.org/p/1570454/
 
 ## Author
 * Martin Krčma
-
-## License
-This project is licensed under GNU General Public License v2.0
