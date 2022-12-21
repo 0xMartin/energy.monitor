@@ -30,14 +30,10 @@ function getPower(fileUrl) {
     if (fileUrl == "") return 0.0;
 
     var curReq = new XMLHttpRequest();
-    var voltReq = new XMLHttpRequest();
-    curReq.open("GET", fileUrl + "/current_now", false);
-    voltReq.open("GET", fileUrl + "/voltage_now", false);
+    curReq.open("GET", fileUrl + "/power_now", false);
     curReq.send(null);
-    voltReq.send(null);
 
-    var power = (parseInt(curReq.responseText) * parseInt(voltReq.responseText)) / 1000000000000;
+    var power = (parseInt(curReq.responseText)) / 1000000;
     if (Number.isNaN(power)) return 0.0;
     return Math.round(power * 10) / 10;
-
 }
