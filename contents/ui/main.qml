@@ -28,10 +28,9 @@ import "../tools/power.js" as Power
 Item {
     id: main
     anchors.fill: parent
-    width: 100
-    height: 40
     Layout.preferredWidth: 400 * units.devicePixelRatio
     Layout.preferredHeight: 300 * units.devicePixelRatio
+
 
     // load energy monitor main componnent
     Loader {
@@ -39,7 +38,8 @@ Item {
         source: "energyMonitor.qml"
     }
 
-    Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
+    //Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
+
 
     // compact representation
     Plasmoid.compactRepresentation: Label {
@@ -47,17 +47,33 @@ Item {
         Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
         anchors {
             fill: parent
-            margins: Math.round(parent.width * 0.05)
+            margins: Math.round(parent.width * 0.01)
         }
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCente
+
+        property double power: 0.0
+
+        // default text
+        text: {
+            if(isOnBattery) {
+                label1.text = "00.0⬇";
+                label1.color = "red";
+            } else {
+                label1.text = "00.0⬆";
+                label1.color = "green";
+            }
+        }
+
         font.pixelSize: 1000;
         minimumPointSize: theme.smallestFont.pointSize
         fontSizeMode: Text.Fit
         font.bold: true
 
+
         // battery power
         property var batteryList: Power.getBatteryPaths()
+
 
         // isOnBattery ? 
         property QtObject pmSource: PlasmaCore.DataSource {
@@ -68,6 +84,7 @@ Item {
         }
         property bool isOnBattery: pmSource.data["AC Adapter"]["Plugged in"] == false
 
+
         // update time
         Timer {
             id: t_label
@@ -76,12 +93,12 @@ Item {
             running: true
             triggeredOnStart: true
             onTriggered: {
-                var power = Power.getPower(batteryList);
+                label1.power = Power.getPower(batteryList);
                 if(isOnBattery) {
-                    label1.text = power + " W⬇";
+                    label1.text = label1.power + "⬇";
                     label1.color = "red";
                 } else {
-                    label1.text = power + " W⬆";
+                    label1.text = label1.power + "⬆";
                     label1.color = "green";
                 }
             }
@@ -103,7 +120,7 @@ Item {
         }
     }
 
+
     // full representation
     Plasmoid.fullRepresentation: energyMonitor
-
 }

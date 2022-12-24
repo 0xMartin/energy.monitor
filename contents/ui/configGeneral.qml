@@ -27,7 +27,6 @@ Item {
     ColumnLayout {
         RowLayout {
             Label {
-                id: timeRangeLabel
                 text: i18n("Time range:")
             }
             SpinBox {
@@ -35,12 +34,12 @@ Item {
                 stepSize: 10
                 minimumValue: 10
                 maximumValue: 10 * 60
+                value: cfg_timeRange
                 suffix: i18nc("Minutes", "min")
             }
         }
         RowLayout {
             Label {
-                id: samplesPerMinuteLabel
                 text: i18n("Samples per minute:")
             }
             SpinBox {
@@ -48,6 +47,7 @@ Item {
                 stepSize: 1
                 minimumValue: 1
                 maximumValue: 60
+                value: cfg_samplesPerMinute
                 suffix: i18nc("Samples", "x")
             }
         }
