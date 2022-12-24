@@ -53,15 +53,5 @@ Item {
                 suffix: i18nc("Samples", "x")
             }
         }
-        RowLayout {
-            Label {
-                id: chcekClearLabel
-                text: i18n("Clear data:")
-            }
-            CheckBox {
-                id: chcekClear
-                checked: false
-            }
-        }
     }
 }
