@@ -57,25 +57,26 @@ function getPower(batteryURLs) {
     for (var i = 0; i < batteryURLs.length; i++) {
         var battery = batteryURLs[i];
         if (battery.powerNowExists == true) {
-            var powerNowFileUrl = battery.url + "/power_now"
+            // Power file
             var req = new XMLHttpRequest();
-            req.open("GET", powerNowFileUrl, false);
+            req.open("GET", battery.url + "/power_now", false);
             req.send(null);
-            var power = parseInt(req.responseText) / 1000000;
-            totalPower += Math.round(power * 10) / 10;
+            if(req.responseText != "") {
+                var power = parseInt(req.responseText) / 1000000;
+                totalPower += Math.round(power * 10) / 10;
+            }
         } else {
-            //if the power_now file doesn't exist, we collect voltage
-            //and current and manually calculate power consumption
-            var curUrl = battery.url + "/current_now"
-            var voltUrl = battery.url + "/voltage_now"
+            // V * I
             var curReq = new XMLHttpRequest();
             var voltReq = new XMLHttpRequest();
-            curReq.open("GET", curUrl, false);
-            voltReq.open("GET", voltUrl, false);
+            curReq.open("GET", battery.url + "/current_now", false);
+            voltReq.open("GET", battery.url + "/voltage_now", false);
             curReq.send(null);
             voltReq.send(null);
-            var power = (parseInt(curReq.responseText) * parseInt(voltReq.responseText)) / 1000000000000;
-            totalPower += Math.round(power * 10) / 10;
+            if(curReq.responseText != "" && voltReq.responseText != "") {
+                var power = (parseInt(curReq.responseText) * parseInt(voltReq.responseText)) / 1000000000000;
+                totalPower += Math.round(power * 10) / 10;
+            }
         }
     }
 
