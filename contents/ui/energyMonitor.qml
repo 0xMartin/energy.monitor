@@ -29,9 +29,7 @@ import "../tools/power.js" as Power
 Item {
     id: energyMonitor
     width: 400
-    height: 250
-    Layout.minimumWidth: PlasmaCore.Units.gridUnit * 25
-    Layout.minimumHeight: PlasmaCore.Units.gridUnit * 13
+    height: 300
     Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
 
 
@@ -80,7 +78,7 @@ Item {
     }
 
 
-    //color of graph (green = chargeding, red = discharging) + config apply
+    //config refresh (in graph.js) + color of graph (green = chargeding, red = discharging)
     property bool isOnBatteryLast: true
     Timer {
         interval: 1000
@@ -90,9 +88,9 @@ Item {
         onTriggered: {
             //config apply
             if(Graph.refreshConfig()) {
+                // changed = recompute main timer interval
                 energyMonitor.mainTimer.interval = 60000 / Graph.samples_per_minute / 10;
             }
-            energyMonitor.canvas.requestPaint();
             //color
             if(energyMonitor.isOnBatteryLast != energyMonitor.isOnBattery) {
                 if(energyMonitor.isOnBattery) {

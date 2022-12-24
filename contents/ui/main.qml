@@ -25,15 +25,13 @@ import QtQuick.Controls 1.1
 import "../tools/power.js" as Power
  
 
-
 Item {
     id: main
     anchors.fill: parent
-
-    width: 110
+    width: 100
     height: 40
-    Layout.preferredWidth: 100 * units.devicePixelRatio
-    Layout.preferredHeight: 40 * units.devicePixelRatio
+    Layout.preferredWidth: 400 * units.devicePixelRatio
+    Layout.preferredHeight: 300 * units.devicePixelRatio
 
     // load energy monitor main componnent
     Loader {
@@ -41,15 +39,12 @@ Item {
         source: "energyMonitor.qml"
     }
 
-    //Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
-
-    // full representation
-    Plasmoid.fullRepresentation: energyMonitor
 
     // compact representation
     Plasmoid.compactRepresentation: Label {
         id: label1
+        Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
         anchors {
             fill: parent
             margins: Math.round(parent.width * 0.05)
@@ -93,14 +88,22 @@ Item {
         }
   
         // full representation (graph)
-        PlasmaCore.ToolTipArea {
-            id: tooltip
+        MouseArea {
+            id: mouseArea
             anchors.fill: parent
-            active: true
-            Layout.minimumWidth: PlasmaCore.Units.gridUnit * 25
-            Layout.minimumHeight: PlasmaCore.Units.gridUnit * 13
-            mainItem: energyMonitor
-        }   
+            onClicked: plasmoid.expanded = !plasmoid.expanded
+            hoverEnabled: true
+        }
+
+        // title
+        PlasmaCore.ToolTipArea {
+            anchors.fill: parent
+            icon: parent.source
+            mainText: "Energy monitor"
+        }
     }
+
+    // full representation
+    Plasmoid.fullRepresentation: energyMonitor
 
 }

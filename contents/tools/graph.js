@@ -59,18 +59,14 @@ function refreshConfig() {
         status = true;
     }
 
-    if (plasmoid.configuration.clear) {
-        plasmoid.configuration.clear = false;
-        clear();
-        status = true;
-    }
-
     return status;
 }
 
 function resample(array, newLength) {
-    if (newLength <= 0) return;
-    if (array.length == 0) return;
+    if (array == undefined) return undefined;
+    if (array.length == 0) return array;
+    if (newLength <= 0) return array;
+
     if (newLength >= array.length) {
         var arr = [];
         var factor = array.length / (newLength - array.length);
@@ -200,6 +196,7 @@ function paintGraph(ctx, width, height) {
 }
 
 function arrayMax(arr) {
+    if(arr == undefined) return 0;
     if (arr.length == 0) return 0;
     var i = 0;
     var max = 0.0;

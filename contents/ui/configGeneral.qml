@@ -23,8 +23,6 @@ import QtQuick.Layouts 1.1
 Item {
     property alias cfg_timeRange: timeRange.value
     property alias cfg_samplesPerMinute: samplesPerMinute.value
-    property alias cfg_clear: chcekClear.checked
-
 
     ColumnLayout {
         RowLayout {
