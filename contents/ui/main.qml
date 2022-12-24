@@ -38,7 +38,7 @@ Item {
         source: "energyMonitor.qml"
     }
 
-    //Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
+    Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
 
     // compact representation
