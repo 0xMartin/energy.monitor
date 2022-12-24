@@ -16,17 +16,21 @@
  * 
  */
 
-import QtQuick 2.0
+import QtQuick 2.7
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQuick.Layouts 1.1
+import QtQuick.Controls 1.1
 
-import "graph.js" as Graph
-import "power.js" as Power
+import "../tools/graph.js" as Graph
+import "../tools/power.js" as Power
 
 
 Item {
     id: main
+    anchors.fill: parent
+
+    property var batteryList: Power.getBatteryPaths()
 
     //battery info
     //<---------------------------------------------------------------------------------------------------->
@@ -46,7 +50,44 @@ Item {
 
     //app 
     //<---------------------------------------------------------------------------------------------------->
-    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
+    Plasmoid.compactRepresentation: Item {
+        anchors.fill: parent
+
+        Layout.preferredWidth: 120 * units.devicePixelRatio
+        Layout.preferredHeight: 40 * units.devicePixelRatio
+
+        // label with Watts
+        Label {
+            id: label1
+
+            anchors {
+                fill: parent
+                margins: Math.round(parent.width * 0.01)
+            }
+
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCente
+
+            font.pixelSize: 1000;
+            minimumPointSize: theme.smallestFont.pointSize
+            fontSizeMode: Text.Fit
+            font.bold: plasmoid.configuration.makeFontBold
+
+            // update time
+            Timer {
+                id: t1
+                interval: 1000
+                repeat: true
+                running: true
+                triggeredOnStart: true
+                onTriggered: {
+                    var power = Power.getPower(main.batteryList);
+                    label1.text = power + " W";
+                }
+            }
+        }
+    }
+
     Plasmoid.fullRepresentation: Item {
         id: energyMonitor
         Layout.minimumWidth: units.gridUnit * 25
@@ -58,7 +99,7 @@ Item {
         property int batteryPercent: pmSource.data[batteryKey][batteryPercentKey]
 
 
-        property double power_avg: Power.getPower(Power.getBatteryPath())
+        property double power_avg: Power.getPower(main.batteryList)
         property double capacity_avg: batteryPercent
         property int samples: 1
 
@@ -123,7 +164,7 @@ Item {
             triggeredOnStart: true
             onTriggered: {
                 //current power
-                var power = Power.getPower(Power.getBatteryPath());
+                var power = Power.getPower(main.batteryList);
 
                 //avg
                 energyMonitor.power_avg += power;

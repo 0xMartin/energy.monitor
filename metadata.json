@@ -19,7 +19,7 @@
         "ServiceTypes": [
             "Plasma/Applet"
         ],
-        "Version": "1.1",
+        "Version": "1.2",
         "Website": "https://github.com/0xMartin/energy.monitor"
     },
     "X-Plasma-API": "declarativeappletscript",
