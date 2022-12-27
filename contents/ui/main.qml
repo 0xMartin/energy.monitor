@@ -32,12 +32,6 @@ Item {
     Layout.preferredHeight: 300 * units.devicePixelRatio
 
 
-    // load energy monitor main componnent
-    Loader {
-        id: energyMonitor
-        source: "energyMonitor.qml"
-    }
-
     Plasmoid.preferredRepresentation: Plasmoid.compactRepresentation
 
 
@@ -120,6 +114,11 @@ Item {
         }
     }
 
+    // load energy monitor main componnent
+    Loader {
+        id: energyMonitor
+        source: "energyMonitor.qml"
+    }
 
     // full representation
     Plasmoid.fullRepresentation: energyMonitor

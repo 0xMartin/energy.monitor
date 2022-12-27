@@ -28,8 +28,8 @@ import "../tools/power.js" as Power
 
 Item {
     id: energyMonitor
-    width: 400
-    height: 300
+    width: 400 * units.devicePixelRatio
+    height: 300 * units.devicePixelRatio
     Plasmoid.backgroundHints: PlasmaCore.Types.ShadowBackground | PlasmaCore.Types.ConfigurableBackground
 
 
